@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="atom.xsl"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://getocc.xyz/blog</id>
+    <title>OCC Blog</title>
+    <updated>2025-10-20T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://getocc.xyz/blog"/>
+    <subtitle>OCC Blog</subtitle>
+    <icon>https://getocc.xyz/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Welcome to the OCC Blog]]></title>
+        <id>https://getocc.xyz/blog/welcome</id>
+        <link href="https://getocc.xyz/blog/welcome"/>
+        <updated>2025-10-20T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Welcome to the Open Computational Chemistry blog!]]></summary>
+        <content type="html"><![CDATA[<p>Welcome to the Open Computational Chemistry blog!</p>
+<p>Stay tuned for updates about OCC development, tutorials, computational chemistry insights, and more.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="what-to-expect">What to Expect<a href="https://getocc.xyz/blog/welcome#what-to-expect" class="hash-link" aria-label="Direct link to What to Expect" title="Direct link to What to Expect" translate="no">​</a></h2>
+<p>We'll be sharing:</p>
+<ul>
+<li>Development updates and new features</li>
+<li>Tutorials and how-to guides</li>
+<li>Computational chemistry tips and tricks</li>
+<li>Community highlights and applications</li>
+</ul>
+<p>Check back soon for our first posts!</p>]]></content>
+        <author>
+            <name>Peter Spackman</name>
+            <uri>https://github.com/peterspackman</uri>
+        </author>
+        <category label="Welcome" term="Welcome"/>
+    </entry>
+</feed>

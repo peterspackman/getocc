@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="rss.xsl"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>OCC Blog</title>
+        <link>https://getocc.xyz/blog</link>
+        <description>OCC Blog</description>
+        <lastBuildDate>Mon, 20 Oct 2025 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <language>en</language>
+        <item>
+            <title><![CDATA[Welcome to the OCC Blog]]></title>
+            <link>https://getocc.xyz/blog/welcome</link>
+            <guid>https://getocc.xyz/blog/welcome</guid>
+            <pubDate>Mon, 20 Oct 2025 00:00:00 GMT</pubDate>
+            <description><![CDATA[Welcome to the Open Computational Chemistry blog!]]></description>
+            <content:encoded><![CDATA[<p>Welcome to the Open Computational Chemistry blog!</p>
+<p>Stay tuned for updates about OCC development, tutorials, computational chemistry insights, and more.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="what-to-expect">What to Expect<a href="https://getocc.xyz/blog/welcome#what-to-expect" class="hash-link" aria-label="Direct link to What to Expect" title="Direct link to What to Expect" translate="no">​</a></h2>
+<p>We'll be sharing:</p>
+<ul>
+<li>Development updates and new features</li>
+<li>Tutorials and how-to guides</li>
+<li>Computational chemistry tips and tricks</li>
+<li>Community highlights and applications</li>
+</ul>
+<p>Check back soon for our first posts!</p>]]></content:encoded>
+            <category>Welcome</category>
+        </item>
+    </channel>
+</rss>

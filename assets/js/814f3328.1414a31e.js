@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkgetocc=self.webpackChunkgetocc||[]).push([[472],{5513:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Welcome to the OCC Blog","permalink":"/blog/welcome","unlisted":false,"date":"2025-10-20T00:00:00.000Z"}]}')}}]);

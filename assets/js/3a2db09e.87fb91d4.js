@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkgetocc=self.webpackChunkgetocc||[]).push([[121],{8070:e=>{e.exports=JSON.parse('{"tags":[{"label":"Welcome","permalink":"/blog/tags/welcome","description":"Welcome posts","count":1}]}')}}]);
