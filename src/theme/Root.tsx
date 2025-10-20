@@ -1,6 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import Head from '@docusaurus/Head';
 
-// Simple pass-through Root component
+// Root component with COI service worker
 export default function Root({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <>
+      <Head>
+        <script src="/coi-serviceworker.js" />
+      </Head>
+      {children}
+    </>
+  );
 }
