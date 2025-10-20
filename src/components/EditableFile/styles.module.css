@@ -1,0 +1,235 @@
+.container {
+  position: relative;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0;
+  font-family: var(--ifm-font-family-monospace);
+  display: flex;
+  flex-direction: column;
+}
+
+.presetsBar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+  flex-wrap: wrap;
+}
+
+.presetButton {
+  background: transparent;
+  color: var(--ifm-color-emphasis-700);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.15s;
+  font-family: var(--ifm-font-family-monospace);
+  font-weight: 500;
+}
+
+.presetButton:hover {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: white;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.filename {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-800);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.buttonPrimary {
+  background: var(--ifm-color-primary);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.buttonPrimary:hover {
+  background: var(--ifm-color-primary-dark);
+}
+
+.buttonSecondary {
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-800);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.buttonSecondary:hover {
+  background: var(--ifm-color-emphasis-300);
+}
+
+.editorWrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  resize: none;
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  flex: 1;
+  min-height: 0;
+}
+
+.message {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  font-size: 0.7rem;
+  color: var(--ifm-color-success);
+  font-weight: 600;
+  font-family: var(--ifm-font-family-base);
+  background: var(--ifm-background-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.editor:focus {
+  outline: none;
+  background: var(--ifm-color-emphasis-0);
+}
+
+.footer {
+  padding: 0.5rem 1rem;
+  background: var(--ifm-color-warning-lightest);
+  border-top: 1px solid var(--ifm-color-warning-light);
+}
+
+.hint {
+  color: var(--ifm-color-warning-darkest);
+  font-size: 0.85rem;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 2rem;
+}
+
+.modalContent {
+  background: var(--ifm-background-color);
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  width: 90vw;
+  max-width: 1200px;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.modalEditor {
+  flex: 1;
+  width: 100%;
+  padding: 1.5rem;
+  border: none;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 1rem;
+  line-height: 1.6;
+  resize: none;
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+}
+
+.modalEditor:focus {
+  outline: none;
+  background: var(--ifm-color-emphasis-0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 996px) {
+  .presetsBar {
+    padding: 0.3rem 0.5rem;
+    gap: 0.3rem;
+  }
+
+  .presetButton {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .buttonPrimary,
+  .buttonSecondary {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.7rem;
+  }
+
+  .editor {
+    font-size: 0.7rem;
+    padding: 0.75rem;
+  }
+
+  .message {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+    right: 0.5rem;
+    top: 0.5rem;
+  }
+}

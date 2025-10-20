@@ -1,0 +1,248 @@
+---
+sidebar_position: 4
+---
+
+import InteractiveCommand from '@site/src/components/InteractiveCommand';
+import EditableFile from '@site/src/components/EditableFile';
+import NGLFileViewer from '@site/src/components/NGLViewer/FileViewer';
+import FileAndViewer from '@site/src/components/FileAndViewer';
+import OutputSnippet from '@site/src/components/OutputSnippet';
+import DimerViewer from '@site/src/components/DimerViewer';
+
+# Crystal Structures & Lattice Energies
+
+For the purposes of this tutorial, we're going to assume you know what a crystal structure is, and that a molecular
+crystal consists of (relatively) close-packed complete molecules. Many (most) material properties depend on the
+crystal structure, but naturally it can be nice to analyse *ex post facto* why a particular structure might have
+been energetically favourable.
+
+:::info
+Some would argue that there's no such thing as a **lattice energy** and we should use the term **binding** or **cohesive**
+energy. They're probably right, but people use the term and that's how language works - so long as we understand what
+we're talking about (in this case the potential energy difference between an isolated molecule and its
+crystal environment)
+:::
+
+## CIF Format: Crystallographic Information Files
+
+Some wise people a long long time ago made the sensible decision to have a standardised format for storing
+crystallographic data. If only computational chemists could also be so wise... perhaps we need [another file
+format](https://xkcd.com/927)! Anyway, crystal structures are typically stored in CIF 
+(Crystallographic Information File) format, and like it or not (I mostly do) this is **the standard**:tm: for crystallography.
+
+### Example: Urea Crystal (CIF)
+
+<FileAndViewer>
+  <div>
+    <EditableFile
+      file="input.cif"
+      height={400}
+      initialContent={`data_urea
+_symmetry_space_group_name_H-M   'P -4 21 m'
+_symmetry_Int_Tables_number      113
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1 x,y,z
+2 -y,x,-z
+3 -x,-y,z
+4 y,-x,-z
+5 1/2-x,1/2+y,-z
+6 1/2+y,1/2+x,z
+7 1/2+x,1/2-y,-z
+8 1/2-y,1/2-x,z
+_cell_length_a                   5.582
+_cell_length_b                   5.582
+_cell_length_c                   4.686
+_cell_angle_alpha                90
+_cell_angle_beta                 90
+_cell_angle_gamma                90
+_cell_volume                     146.01
+_cell_formula_units_Z            2
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+C1 C 0.00000 0.50000 0.32720
+H1 H 0.26900 0.76900 0.27900
+H2 H 0.14200 0.64200 -0.02800
+N1 N 0.14550 0.64550 0.18000
+O1 O 0.00000 0.50000 0.59660
+N1B N -0.14550 0.35450 0.18000
+H1B H -0.26900 0.23100 0.27900
+H2B H -0.14200 0.35800 -0.02800`}
+    />
+  </div>
+  <div>
+    <NGLFileViewer
+      file="input.cif"
+      format="cif"
+      representation="ball+stick"
+      height={400}
+    />
+    <p style={{ fontSize: '0.85rem', marginTop: '0.5rem', opacity: 0.7 }}>
+      <em>Viewer shows the asymmetric unit only</em>
+    </p>
+  </div>
+</FileAndViewer>
+
+**Key information:**
+- **Unit cell dimensions**: a=5.582, b=5.582, c=4.686 Å (tetragonal cell)
+- **Space group**: $\text{P}\bar{4}2_1\text{m}$ (International tables number **113**) with 8 symmetry operations listed
+- **Atomic positions**: Given in fractional coordinates (0-1 range relative to unit cell)
+- **Z = 2**: Two formula units (urea molecules) per unit cell
+
+:::tip
+Unlike e.g. an `xyz` file for a molecule, it's a bit harder to reason about what might happen in your head
+when there are fractional coordinates, symmetry operations involved etc. So, I'd advise not to edit this one
+if you want chemically meaningful answers - though you can obviously paste in another CIF!
+:::
+
+### Where to find CIF Files
+
+- [Cambridge Structural Database (CSD)](https://www.ccdc.cam.ac.uk/structures/) - 1M+ experimental organic/organometallic structures
+- [Crystallography Open Database (COD)](https://www.crystallography.net/cod/) - Free, open-access database of experimental structures
+- [Materials Project](https://next-gen.materialsproject.org/) - Computed structures for lots of inorganic materials (not so useful for molecular crystals)
+- [PubChem](https://pubchem.ncbi.nlm.nih.gov/) - Some entries have 3D crystal structures, linking to the CSD!
+
+If it's not in one of the major databases, either you'll have to crystallise it yourself or perform some Crystal Structure Prediction!
+
+## Lattice Energy Calculations
+
+The **lattice energy** is the energy required to separate a crystal into isolated molecules (basically the sublimation enthalpy, ignoring the vibrational bits). It turns out that for neutral molecules a pretty good approximation of this
+energy is the sum of all pairwise intermolecular interaction energies in the crystal.
+
+### Basic ELAT Calculation
+
+<InteractiveCommand
+  id="urea-elat-basic"
+  command="occ elat input.cif --model ce-hf --radius 8"
+  expectedOutputs={['input_elat_results.json', 'input_dimers/dimer_0.xyz', 'input_dimers/dimer_1.xyz']}
+  highlights={[
+    { pattern: /Lattice energy.*?kJ\/mol/g, className: 'success', label: 'Lattice Energy' },
+    { pattern: /E_total\s+-?\d+\.\d+/g, className: 'warning', label: 'Pair Interaction Energy' },
+    { pattern: /E_coul\s+-?\d+\.\d+/g, className: 'info', label: 'Coulomb Energy' },
+    { pattern: /E_disp\s+-?\d+\.\d+/g, className: 'info', label: 'Dispersion Energy' }
+  ]}
+/>
+
+**Parameters:**
+- `--model ce-hf` - Energy model (CrystalExplorer-HF using HF/3-21g wavefunctions - for quick calcs like this)
+- `--radius 8` - Include all molecules within 8 Å of the central molecule
+
+**Output:**
+- Energy results and decomposition printed to console
+- XYZ files for each unique dimer pair saved in `input_dimers/` directory
+
+**Expected runtime**: From seconds to hours (varies by system size, energy model, and how many cores we throw at it)
+
+### Understanding the Output
+
+<OutputSnippet
+  commandId="urea-elat-basic"
+  pattern="Lattice energy.*"
+  title="Lattice Energy Result"
+>
+
+The **lattice energy** shows the total stability of the crystal structure. The negative value indicates that the crystal is stable - energy is released when molecules come together to form the crystal.
+
+For urea the experimental $\Delta H_\text{sub} \approx 95-100 \text{kJ/mol}$
+Differences must come from a combination of errors in the approximation and ignoring vibrational effects (experimental error is almost almost certainly smaller than ours)!
+
+</OutputSnippet>
+
+#### 2. Pairwise Interactions Table
+
+<OutputSnippet
+  commandId="urea-elat-basic"
+  pattern={/^\s+Rn\s+Rc.*E_tot[\s\S]+?(?=\n\s*\n|\nTotal|\nLattice)/m}
+  title="Neighbor Interaction Table"
+  maxLines={10}
+>
+
+This table shows all unique intermolecular interactions in the crystal.
+
+**Key columns:**
+- **Rn**: Nearest contact distance (Å) - shortest distance between atoms
+- **Rc**: Center-of-mass distance (Å)
+- **Symop**: Symmetry operation relating the molecules
+- **E_tot**: Total interaction energy (kJ/mol) - **this is what matters!**
+
+The **most negative E_tot** value indicates the **strongest interaction**. Look for the row with the largest negative energy - this is typically a strong hydrogen bond that dominates the crystal packing.
+
+Energy components breakdown:
+- **E_coul** (Coulomb): Electrostatic attraction/repulsion
+- **E_ex** (Exchange): Quantum mechanical stabilization
+- **E_rep** (Repulsion): Pauli exclusion (always positive)
+- **E_pol** (Polarization): Induced dipole effects
+- **E_disp** (Dispersion): London/van der Waals forces
+
+</OutputSnippet>
+
+### Understanding the CE Energy Model
+
+The CrystalExplorer (CE) energy models compute interaction energies using gas-phase SCF (i.e. DFT or HF) calculations
+on molecular monomers, then put the dimers together and see how they interact. The **total interaction energy** is
+computed from several components:
+
+$$ E_{\text{tot}} = k_{\text{ele}} \times E_{\text{ele}} + k_{\text{pol}} \times E_{\text{pol}} + k_{\text{disp}} \times E_{\text{disp}} + k_{\text{rep}} \times E_{\text{rep}} + k_{\text{ex}} \times E_{\text{ex}}$$
+
+Where:
+- $E_{\text{ele}}$ (electrostatic) =Coulomb interactions
+- $E_{\text{ex}}$ (exchange) = Hartree-Fock exchange interaction (stabilisation from avoiding pauli repulsion)
+- $E_{\text{pol}}$ (polarization) = Induction energy from induced dipoles
+- $E_{\text{disp}}$ (dispersion) = London/van der Waals attraction
+- $E_{\text{rep}}$ (repulsion) = Pauli exclusion repulsion
+
+**Important:** The k-factors (scaling factors) are model-specific and **not equal to 1**. This means $E_{\text{total}} \neq E_{\text{coul}} + E_{\text{ex}} + E_{\text{pol}} + E_{\text{disp}} + E_{\text{rep}}$. The scaling factors correct for basis set incompleteness and method deficiencies, and are fitted to high-level benchmark calculations.
+
+#### Available CE Models
+
+<div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
+
+| Model | Method | Basis Set | $k_{\text{ele}}$ | $k_{\text{ex}}$ | $k_{\text{rep}}$ | $k_{\text{pol}}$ | $k_{\text{disp}}$ | Use XDM? |
+|-------|--------|-----------|:----------------:|:---------------:|:----------------:|:----------------:|:-----------------:|:--------:|
+| **ce-hf** | HF | 3-21g | 1.019 | 0.811 | 0.811 | 0.651 | 0.901 | No |
+| **ce-b3lyp** | B3LYP | 6-31G** | 1.057 | 0.618 | 0.618 | 0.740 | 0.871 | No |
+| **ce-1p** | any (default B3LYP) | def2-SVP | 1.0 | 0.779 | 0.779 | 0.779 | 1.0 | Yes |
+
+</div>
+
+**Model selection:**
+- **ce-hf**: Fast, good for quick estimates and tutorial examples
+- **ce-b3lyp**: More accurate for organic molecules, uses a larger basis set
+- **ce-1p**: Modern variant using XDM dispersion correction, better for polar systems, transferable across methods
+
+:::note
+The CE-1p model uses the Exchange-Dipole Moment (XDM) dispersion correction instead of what was basically a D2 dispersion + empirical scaling approach. For this model, $k_{\text{ex}} = k_{\text{rep}} = k_{\text{pol}}$ and both electrostatic and dispersion terms are unscaled ($k = 1.0$).
+:::
+
+### Visualizing and Analyzing Dimers
+
+The calculation above automatically created XYZ files for each unique dimer in the `input_dimers/` directory. You can now visualize and explore these structures:
+
+<DimerViewer
+  directory="input_dimers"
+  format="xyz"
+  representation="ball+stick"
+  height={400}
+/>
+
+:::tip
+Visualize dimers in the viewer above to see the N-H···O hydrogen bond geometry. The short H···O contact and linear arrangement confirm this is the dominant interaction stabilizing the urea crystal.
+:::
+
+## Physical Interpretation
+
+### What Makes a Stable Crystal?
+
+The answer, like most chemical problems, is that stability is relative. What we've computed is an estimate
+of stability/enthalpy for this particular crystal vs. the gas-phase. But this is far from the whole picture,
+it really depends on the chemical problem. For a crystal grown from solvent, we'd need to know the
+**free energy** of solvation, free energy of the crystal, free energy of the gas, the free energy of ...
+basically all possible accessible states before we could identify the populations of each at equilibrium.
+
+In general though, it might be enough to have some estimate of solvation vs. the crystal, more on that in the
+section on [Crystal Growth & Surface Energies](./crystal-growth-morphology)!

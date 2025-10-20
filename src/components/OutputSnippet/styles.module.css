@@ -1,0 +1,121 @@
+.container {
+  margin: 1rem 0;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--ifm-background-surface-color);
+}
+
+.header {
+  padding: 0.75rem 1rem;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+.header:hover {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.header strong {
+  font-size: 0.875rem;
+  color: var(--ifm-color-emphasis-800);
+}
+
+.collapseButton {
+  background: none;
+  border: none;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.snippet {
+  margin: 0;
+  padding: 1rem;
+  background: var(--ifm-code-background);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  color: var(--ifm-color-emphasis-900);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.ellipsis {
+  color: var(--ifm-color-emphasis-600);
+  font-style: italic;
+}
+
+.explanation {
+  padding: 1rem;
+  background: var(--ifm-background-surface-color);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.explanation p {
+  margin: 0.5rem 0;
+}
+
+.explanation p:first-child {
+  margin-top: 0;
+}
+
+.explanation p:last-child {
+  margin-bottom: 0;
+}
+
+.explanation strong {
+  color: var(--ifm-color-primary);
+  font-weight: 600;
+}
+
+.explanation code {
+  background: var(--ifm-code-background);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+
+.explanation ul, .explanation ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.explanation li {
+  margin: 0.25rem 0;
+}
+
+.noOutput {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--ifm-color-emphasis-600);
+  font-style: italic;
+  font-size: 0.9rem;
+  background: var(--ifm-color-emphasis-50);
+}
+
+.highlight {
+  background-color: rgba(255, 235, 59, 0.3);
+  font-weight: 600;
+  color: var(--ifm-color-emphasis-1000);
+}
+
+/* Dark mode */
+[data-theme='dark'] .noOutput {
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-color-emphasis-700);
+}
+
+[data-theme='dark'] .highlight {
+  background-color: rgba(255, 235, 59, 0.2);
+  color: var(--ifm-color-emphasis-100);
+}

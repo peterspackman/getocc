@@ -1,0 +1,254 @@
+---
+sidebar_position: 5
+---
+
+import InteractiveCommand from '@site/src/components/InteractiveCommand';
+import OutputSnippet from '@site/src/components/OutputSnippet';
+import MorphologyViewer from '@site/src/components/MorphologyViewer';
+import SolventSurfaceViewer from '@site/src/components/SolventSurfaceViewer';
+import EditableFile from '@site/src/components/EditableFile';
+import NGLFileViewer from '@site/src/components/NGLViewer/FileViewer';
+import FileAndViewer from '@site/src/components/FileAndViewer';
+
+# Crystal Growth & Surface Energies
+
+Just about the only thing we know without doubt about crystal growth is that crystals do, in fact, grow.
+They grow from solution, from the melt, from gas via sublimation, from seeds and have many, many growth regimes.
+All the stuff in the middle, between going from solution/gas phase to a small crystal (e.g. nucleation, growth) is,
+to say the least, complex but that doesn't stop us introducting some approximations to hopefully help guide us
+in the pursuit of controlling the overall growth and resulting properties of crystals!
+
+## Introduction to Crystal Morphology
+
+The **morphology** of a crystal is its external shape - which faces appear and their relative sises. Understanding and predicting crystal morphology is crucial for:
+- **Pharmaceuticals** - Crystal shape affects dissolution, flowability, compaction
+- **Materials** - Morphology influences optical, electronic, mechanical properties
+- **Process optimisation** - Control crystallisation to get desired shapes
+
+At equilibrium, the resulting crystal shape is in-principle determined by **surface energies**: lower energy
+faces grow slower and appear larger in the final crystal. Solvents can dramatically affect morphology 
+by stabilizing certain faces more than others. This is effectively the same thing as surface tension, but 
+liquids are basically isotropic/lack distinct facets - unlike nicely ordered crystals.
+
+## Input Structure
+
+We'll continue with the urea crystal structure from the [previous tutorial](./crystal-lattice-energies):
+
+<FileAndViewer>
+  <div>
+    <EditableFile
+      file="input.cif"
+      height={400}
+      initialContent={`data_urea
+_symmetry_space_group_name_H-M   'P -4 21 m'
+_symmetry_Int_Tables_number      113
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1 x,y,z
+2 -y,x,-z
+3 -x,-y,z
+4 y,-x,-z
+5 1/2-x,1/2+y,-z
+6 1/2+y,1/2+x,z
+7 1/2+x,1/2-y,-z
+8 1/2-y,1/2-x,z
+_cell_length_a                   5.582
+_cell_length_b                   5.582
+_cell_length_c                   4.686
+_cell_angle_alpha                90
+_cell_angle_beta                 90
+_cell_angle_gamma                90
+_cell_volume                     146.01
+_cell_formula_units_Z            2
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+C1 C 0.00000 0.50000 0.32720
+H1 H 0.26900 0.76900 0.27900
+H2 H 0.14200 0.64200 -0.02800
+N1 N 0.14550 0.64550 0.18000
+O1 O 0.00000 0.50000 0.59660
+N1B N -0.14550 0.35450 0.18000
+H1B H -0.26900 0.23100 0.27900
+H2B H -0.14200 0.35800 -0.02800`}
+    />
+  </div>
+  <div>
+    <NGLFileViewer
+      file="input.cif"
+      format="cif"
+      representation="ball+stick"
+      height={400}
+    />
+    <p style={{ fontSise: '0.85rem', marginTop: '0.5rem', opacity: 0.7 }}>
+      <em>Viewer shows the asymmetric unit only</em>
+    </p>
+  </div>
+</FileAndViewer>
+
+## Crystal Growth Calculation
+
+Let's assume the free energies that dictate crystal growth can be expressed as the sum of neighbouring
+interactions (a big assumption), to get there we can compute interaction energies within the crystal, and
+break up the solvation surface into chunks representative of the solvation/desolvation that must happen
+as part of the growth/dissolution process.
+The below calculation ([see paper](doi.org/10.1039/D2SC06761G)) automatically computes the gas-phase molecule wavefunction(s), solvated wavefunction(s)
+and all the corresponding energies and partition and prints out a handle table/writes some convenient output files
+
+<InteractiveCommand
+  id="urea-cg-water"
+  command="occ cg input.cif --radius 3.8 --cg-radius 3.8 --solvent water --surface-energies 10"
+  expectedOutputs={['input_vacuum.gmf', 'input_vacuum.ply', 'input_water.gmf', 'input_water.ply', 'input_water_surface.json', 'input_water_cg_results.json']}
+  highlights={[
+    { pattern: /\(\d+\s+\d+\s+\d+\).*?J\/m²/g, className: 'success', label: 'Surface Energy' },
+    { pattern: /Solvation free energy.*?kJ\/mol/g, className: 'info', label: 'Solvation Energy' },
+    { pattern: /Lattice energy.*?kJ\/mol/g, className: 'warning', label: 'Lattice Energy' }
+  ]}
+/>
+
+**Parameters:**
+- `--radius 3.8` - Neighbour cutoff for bulk lattice energy calculations (Å)
+- `--cg-radius 3.8` - Neighbour cutoff for surface energy calculations (Å)
+- `--solvent water` - Solvent for solvated morphology (also calculates vacuum automatically)
+- `--surface-energies 10` - Calculate surface energies for top 10 crystal facets (ordered by interplanar
+spacing/$d_\text{hkl}$)
+
+**Default energy model**: CE-B3LYP (can be changed with `--model` flag)
+
+
+## Understanding the Output
+
+### Solvent Accessible Surface
+
+The calculation generates a detailed point cloud representation of the solvent-accessible surface, partitioned into regions (CDS - Charge Density Surface and Coulomb contributions). Each point has an associated area and energy contribution:
+
+<SolventSurfaceViewer
+  surfaceFile="input_0_water_surface.json"
+  height={500}
+/>
+
+**Color modes:**
+- **Uniform**: Solid color (blue for CDS, orange for Coulomb)
+- **Energy**: Viridis colormap showing energy per surface point (blue/purple = low energy, yellow = high energy)
+- **Neighbor**: Each neighboring molecule gets a distinct color, showing which dimer (neighboring molecule pair, not just symmetry-unique dimers) is closest to each part of the surface
+
+**Surface types:**
+- **CDS** (blue): Cavitation/Dispersion/repulsion Surface - represents the non-electrostatic (cavity formation, dispersion, exchange-repulsion) surface partition
+- **Coulomb** (orange): Electrostatic surface partition
+- **Both**: Shows both surfaces simultaneously
+
+The point cloud shows where solvation stabilization occurs around the molecule. The **Neighbor** mode is particularly useful for understanding how the surface is partitioned among all neighboring molecules in the crystal packing.
+
+### Free Energy Summary
+
+<OutputSnippet
+  commandId="urea-cg-water"
+  pattern={/Free energy estimates.*?[\s\S]+?(?=Neighbours for|Crystal surface)/}
+  title="Thermodynamic Properties"
+  maxLines={20}
+>
+
+**Key thermodynamic quantities** (kJ/mol at 298 K, 1 atm):
+
+- **lattice energy (crystal)**: Energy to separate crystal into gas-phase molecules ($E_\text{lat}$)
+- **solvation free energy**: Stabilisation when molecule moves from vacuum into water ($E_\text{solv}$)
+- **dG solution**: Free energy change for dissolution (crystal → solution)
+- **Solubility (g/L)**: Estimated solubility based on dG solution
+
+**Physical interpretation:**
+- Negative E_solv → molecule prefers solution over vacuum
+- Negative dG solution → energetically favorable to dissolve
+- Solubility prediction is approximate but useful for screening
+
+</OutputSnippet>
+
+### Neighbour Interactions
+
+<OutputSnippet
+  commandId="urea-cg-water"
+  startPattern="Neighbors for asymmetric molecule"
+  endPattern="Free energy estimates"
+  title="Crystal Packing Interactions"
+  maxLines={20}
+>
+
+**Column meanings:**
+- **nn**: Is this a nearest neighbour?
+- **Rn**: Nearest atomic contact distance (Å)
+- **Rc**: Center-of-mass distance (Å)
+- **E_crys**: Pair interaction energy in crystal (kJ/mol)
+- **ES_AB, ES_BA**: Solvation energy contributions (From A to B and vice-versa)
+- **E_S**: Total solvation stabilisation
+- **E_int**: Net interaction energy = E_crys - E_S
+
+**Most negative E_crys** indicates the **strongest interaction** (e.g. hydrogen bonds).
+
+</OutputSnippet>
+
+### Surface Energies
+
+<OutputSnippet
+  commandId="urea-cg-water"
+  startPattern="Crystal surface energies"
+  endPattern="Writing"
+  title="Surface Energies in Water"
+  maxLines={15}
+>
+
+Each crystal face (hkl) has a **surface energy** in J/m²:
+
+**Column meanings:**
+- **(hkl)**: Miller indices defining the crystal face
+- **spacing**: d-spacing between (hkl) planes (nm)
+- **area**: Surface area of one face in unit cell (Å²)
+- **cut**: Position of cut through unit cell (fractional)
+- **energy**: Surface energy (J/m²)
+
+**The face with lowest energy will dominate the equilibrium crystal morphology.** Surface energies in water are typically lower than in vacuum because the solvent stabilises the exposed surface, and different faces are stabilised by different amounts causing morphology changes.
+
+</OutputSnippet>
+
+### Visualizing Crystal Morphology
+
+The calculations generate `.ply` files containing the predicted 3D crystal shapes. You can visualise these directly:
+
+<MorphologyViewer
+  vacuumFile="input_vacuum.ply"
+  solvatedFile="input_water.ply"
+  height={500}
+/>
+
+:::tip
+The visualisation shows the Wulff construction based on calculated surface energies. Faces with lower energies appear larger. Toggle between vacuum and water morphologies to see how the solvent changes the crystal shape!
+:::
+
+## Physical Interpretation
+
+### Why Surface Energy Matters
+
+**Low surface energy face:**
+- Molecules nearly as stable at surface as in bulk
+- Low driving force to grow
+- Grows slowly → remains large in final crystal
+
+**High surface energy face:**
+- Molecules less stable at surface than bulk
+- High driving force to add more molecules
+- Grows quickly → disappears (grows out of existence)
+
+### Solvent Effects
+
+Solvents affect crystal faces differently because:
+1. **Face-specific chemistry**: Different faces expose different functional groups
+2. **Solvent-surface interactions**: Polar solvents stabilise polar faces more
+3. **Dielectric screening**: Reduces electrostatic interactions differently per face
+
+**Result**: Relative surface energies change → morphology changes
+
+## Next Steps
+
+You now understand how to predict crystal shapes and solvent effects! Continue to the next tutorial to explore more advanced topics.

@@ -1,0 +1,188 @@
+---
+sidebar_position: 2
+---
+
+# Basic SCF Calculations
+
+import InteractiveCommand from '@site/src/components/InteractiveCommand';
+import EditableFile from '@site/src/components/EditableFile';
+import NGLFileViewer from '@site/src/components/NGLViewer/FileViewer';
+import FileAndViewer from '@site/src/components/FileAndViewer';
+import OutputSnippet from '@site/src/components/OutputSnippet/OutputSnippet';
+
+## Your First Calculation: Water Molecule
+
+Let's start with a simple water molecule.
+You can either do this in the browser here, or on the command line after [installing occ](./intro).
+
+### Input File Format
+
+By default, occ would use something like a `.xyz` file, so let's create a file called `input.xyz`:
+
+<FileAndViewer>
+  <EditableFile
+    file="input.xyz"
+    height={400}
+    initialContent={`3
+water molecule
+O   -0.7021961  -0.0560603   0.0099423
+H   -1.0221932   0.8467758  -0.0114887
+H    0.2575211   0.0421215   0.0052190`}
+    presets={[
+      {
+        name: "H2",
+        content: `2
+hydrogen molecule
+H    0.0    0.0    0.0
+H    0.0    0.0    0.74`
+      },
+      {
+        name: "water",
+        content: `3
+water molecule
+O   -0.7021961  -0.0560603   0.0099423
+H   -1.0221932   0.8467758  -0.0114887
+H    0.2575211   0.0421215   0.0052190`
+      },
+      {
+        name: "methane",
+        content: `5
+methane
+C    0.000000    0.000000    0.000000
+H    0.629118    0.629118    0.629118
+H   -0.629118   -0.629118    0.629118
+H   -0.629118    0.629118   -0.629118
+H    0.629118   -0.629118   -0.629118`
+      },
+      {
+        name: "benzene",
+        content: `12
+benzene
+C    1.396    0.000    0.000
+C    0.698    1.209    0.000
+C   -0.698    1.209    0.000
+C   -1.396    0.000    0.000
+C   -0.698   -1.209    0.000
+C    0.698   -1.209    0.000
+H    2.481    0.000    0.000
+H    1.241    2.149    0.000
+H   -1.241    2.149    0.000
+H   -2.481    0.000    0.000
+H   -1.241   -2.149    0.000
+H    1.241   -2.149    0.000`
+      }
+    ]}
+  />
+  <NGLFileViewer
+    file="input.xyz"
+    format="xyz"
+    representation="ball+stick"
+    height={400}
+  />
+</FileAndViewer>
+
+**Understanding the XYZ format:**
+- **Line 1**: Number of atoms (3 for water)
+- **Line 2**: Comment line (commonly includes charge, multiplicity, or energy)
+- **Lines 3+**: Element symbol followed by Cartesian x, y, z coordinates in Angstroms
+
+Try editing the coordinates and clicking "Save to VFS" to see the structure update in the viewer!
+
+### Running the Calculation
+
+Now run a basic SCF (Self-Consistent Field) calculation:
+
+<InteractiveCommand
+  id="scf-input"
+  command="occ scf input.xyz b3lyp def2-svp"
+  expectedOutputs={['input.owf.json']}
+/>
+
+**Command breakdown:**
+- `occ scf` - Run an SCF calculation
+- `input.xyz` - Input geometry file
+- `b3lyp` - DFT functional (hybrid functional, good general-purpose choice)
+- `def2-svp` - Basis set (double-zeta with polarization functions)
+
+### Understanding the Output
+
+The calculation will show SCF iterations converging to the final energy:
+
+<OutputSnippet
+  commandId="scf-input"
+  pattern="^\s*#.*|^\s*\d+\s+-?\d+\.\d+.*"
+  highlightPattern="^\s*\d+\s+"
+  title="SCF Convergence"
+  maxLines={12}
+>
+
+Watch the **SCF iterations** converge - the energy (column 2) should stabilize and the error (column 3) should decrease as the calculation proceeds.
+
+</OutputSnippet>
+
+<OutputSnippet
+  commandId="scf-input"
+  pattern="Component\s+Energy.*|^nuclear\s+.*|^electronic\s+.*|^total\s+.*|^\w+\.\w+\s+-?\d+\.\d+"
+  highlightPattern="^total\s+"
+  title="Energy Components"
+  maxLines={20}
+>
+
+**Energy components:**
+- **nuclear.repulsion** - Electrostatic repulsion between nuclei
+- **electronic** - Total electronic energy (kinetic + electron-electron repulsion + exchange-correlation)
+- **total** - Final SCF energy (sum of nuclear and electronic contributions)
+
+</OutputSnippet>
+
+### Output Files
+
+<OutputSnippet
+  commandId="scf-input"
+  pattern="wavefunction stored in.*"
+  title="Generated Files"
+>
+
+The calculation generates:
+- **Wavefunction file** (`.owf.json`) - Contains all electronic structure information including molecular orbitals, electron density, and energies
+- This file can be used for further analysis (visualization, property calculations, etc.)
+
+</OutputSnippet>
+
+## Experimenting with Different Methods
+
+Click the command above to edit it and try different functionals, basis sets, and options:
+
+For molecular systems like this one, something like hybrid DFT functionals would be almost the default. This can change, depending on the property of interest etc. Play around with some example methods here to see what differences it makes in total energy and in timing:
+
+
+### Common Functionals
+- `hf` - Hartree-Fock (or the `uhf` and `ghf` variants)
+- `pbe` - Pure GGA functional 
+- `b3lyp` - Popular hybrid DFT 
+- `wb97x` - Range-separated hybrid GGA
+
+### Basis Sets
+Generally we'd use the largest basis set we can afford (with some caveats). Most SCF calculations scale faster than linear ($O(N^2)$, $O(N^4)$ for example) with number of basis functions, so naturally there's a limit to what is computationally tractable. Play around with some examples:
+
+- `3-21g` - Small, split valence basis (very fast, almost certainly not big enough for most properties of interest)
+- `def2-svp` - Double-zeta with polarization (good default)
+- `cc-pvtz` - Triple-zeta with polarization (production quality)
+
+### Common Options
+
+**Charged/open-shell systems:**
+```bash
+--charge 1 --multiplicity 2          # Cation with one unpaired electron
+--charge '-1' --multiplicity 2       # Anion, one unpaired electron
+--unrestricted                       # Unrestricted calculation (open-shell)
+```
+
+## Next Steps
+
+Now that you can run basic calculations, learn how to:
+- Visualize the electronic structure (wavefunctions, densities, orbitals)
+- Optimize molecular geometries
+- Calculate molecular properties
+
+Continue to the next tutorial: [Wavefunction Analysis & Visualization](./wavefunction-analysis)

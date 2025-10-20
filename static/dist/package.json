@@ -1,0 +1,58 @@
+{
+  "name": "@peterspackman/occjs",
+  "version": "0.8.4",
+  "description": "JavaScript/WebAssembly bindings for OCC - a quantum chemistry and crystallography library",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "module": "index.mjs",
+  "bin": {
+    "occ": "./occ.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./index.js",
+      "import": "./index.mjs"
+    },
+    "./wasm": {
+      "default": "./occjs.wasm"
+    },
+    "./data": {
+      "default": "./occjs.data"
+    },
+    "./cli": {
+      "default": "./occ.js"
+    },
+    "./cli-wasm": {
+      "default": "./occ.wasm"
+    },
+    "./cli-data": {
+      "default": "./occ.data"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peterspackman/occ.git"
+  },
+  "keywords": [
+    "quantum-chemistry",
+    "crystallography",
+    "computational-chemistry",
+    "wasm",
+    "webassembly",
+    "molecular-modeling",
+    "dft",
+    "hartree-fock",
+    "scientific-computing"
+  ],
+  "author": "Peter Spackman",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/peterspackman/occ/issues"
+  },
+  "homepage": "https://github.com/peterspackman/occ#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

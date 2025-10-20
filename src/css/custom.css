@@ -1,0 +1,43 @@
+/**
+ * Tokyo Night Theme for Docusaurus
+ * Simplified - just core Infima color variables
+ */
+
+/* Tokyo Night Day (Light Mode) */
+:root {
+  /* Primary colors */
+  --ifm-color-primary: #2e7de9;
+  --ifm-color-primary-dark: #1a6dd6;
+  --ifm-color-primary-darker: #1865ca;
+  --ifm-color-primary-darkest: #1454a7;
+  --ifm-color-primary-light: #4d8df0;
+  --ifm-color-primary-lighter: #5c95f2;
+  --ifm-color-primary-lightest: #7aa7f5;
+
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(46, 125, 233, 0.1);
+}
+
+/* Tokyo Night Storm (Dark Mode) */
+[data-theme='dark'] {
+  /* Primary colors */
+  --ifm-color-primary: #7aa2f7;
+  --ifm-color-primary-dark: #5a8ede;
+  --ifm-color-primary-darker: #4d84d8;
+  --ifm-color-primary-darkest: #366cb5;
+  --ifm-color-primary-light: #9ab6ff;
+  --ifm-color-primary-lighter: #a8bfff;
+  --ifm-color-primary-lightest: #c4d5ff;
+
+  --docusaurus-highlighted-code-line-bg: rgba(122, 162, 247, 0.1);
+}
+
+/* Hide external link icon */
+.navbar__item .navbar__link[href*="http"]::after,
+.navbar__link--external::after {
+  display: none !important;
+}
+
+a[target="_blank"]::after {
+  content: none !important;
+}

@@ -1,0 +1,234 @@
+---
+sidebar_position: 3
+---
+
+import InteractiveCommand from '@site/src/components/InteractiveCommand';
+import EditableFile from '@site/src/components/EditableFile';
+import NGLFileViewer from '@site/src/components/NGLViewer/FileViewer';
+import FileAndViewer from '@site/src/components/FileAndViewer';
+import OutputSnippet from '@site/src/components/OutputSnippet/OutputSnippet';
+
+# Wavefunction Analysis & Visualization
+
+Learn how to analyze and visualize molecular electronic structure using wavefunction data from SCF calculations.
+
+## Overview
+
+After running an SCF calculation, you have a wavefunction file (`.owf.json`) - containing the complete
+electronic structure using the specified method and atomic orbital basis.
+There's pretty much no end to the information we can extract from a wavefunction file, but some popular options are:
+- Computing the electron density (or visualising MOs) i.e. cube files or isosurfaces
+- Computing the electrostatic potential at some set of points
+- Poppulation analysis (e.g. Hirshfeld, or Distributed Multipole Analysis)
+
+## Input Molecule
+
+Let's continue with the molecule(s) from the previous tutorial. Make sure you have the input file:
+
+<FileAndViewer>
+    <EditableFile
+      file="input.xyz"
+      height={400}
+      initialContent={`3
+water molecule
+O   -0.7021961  -0.0560603   0.0099423
+H   -1.0221932   0.8467758  -0.0114887
+H    0.2575211   0.0421215   0.0052190`}
+      presets={[
+        {
+          name: "H2",
+          content: `2
+hydrogen molecule
+H    0.0    0.0    0.0
+H    0.0    0.0    0.74`
+        },
+        {
+          name: "water",
+          content: `3
+water molecule
+O   -0.7021961  -0.0560603   0.0099423
+H   -1.0221932   0.8467758  -0.0114887
+H    0.2575211   0.0421215   0.0052190`
+        },
+        {
+          name: "methane",
+          content: `5
+methane
+C    0.000000    0.000000    0.000000
+H    0.629118    0.629118    0.629118
+H   -0.629118   -0.629118    0.629118
+H   -0.629118    0.629118   -0.629118
+H    0.629118   -0.629118   -0.629118`
+        },
+        {
+          name: "benzene",
+          content: `12
+benzene
+C    1.396    0.000    0.000
+C    0.698    1.209    0.000
+C   -0.698    1.209    0.000
+C   -1.396    0.000    0.000
+C   -0.698   -1.209    0.000
+C    0.698   -1.209    0.000
+H    2.481    0.000    0.000
+H    1.241    2.149    0.000
+H   -1.241    2.149    0.000
+H   -2.481    0.000    0.000
+H   -1.241   -2.149    0.000
+H    1.241   -2.149    0.000`
+        }
+      ]}
+    />
+    <NGLFileViewer
+      file="input.xyz"
+      cubeFile="density.cube"
+      format="xyz"
+      representation="ball+stick"
+      height={400}
+      cubeIsovalue={0.002}
+      cubeColor="#4169e1"
+      cubeOpacity={0.7}
+    />
+</FileAndViewer>
+
+## Generate the Wavefunction
+
+First, run the SCF calculation if you don't already have one in local storage for the page:
+
+<InteractiveCommand
+  id="wf-scf"
+  command="occ scf input.xyz b3lyp def2-svp"
+  expectedOutputs={['input.owf.json']}
+/>
+
+## Electron Density Visualization
+
+Cube files store 3D volumetric data (electron density, electrostatic potential, etc.) on a regular grid (as always, [Paul Bourke](https://paulbourke.net/dataformats/cube/) has a nice page on the format if you're curious). Let's start by computing and visualising the electron density (`density` keyword):
+
+<InteractiveCommand
+  id="density-cube"
+  command="occ cube input.owf.json density -n 50 -o density.cube"
+  expectedOutputs={['density.cube']}
+/>
+
+**Parameters:**
+- `density` - Property to calculate (electron density ρ(r))
+- `-n 50` - Grid resolution: 50×50×50 points (good default)
+- `-o density.cube` - Output filename
+
+The cube file should automatically appear as a blue isosurface overlaid on the molecule in 
+the viewer above. Use the slider to adjust the isovalue and explore different density contours!
+
+:::tip
+Cube files are quite space inefficient (using ASCII/plain text to store floating point numbers always is)
+but they're widely supported, so they've got that going for them!
+:::
+
+### Available Properties
+
+You can calculate various 3D properties. Click the command above to edit and try:
+**Common properties:**
+- `density` - Total electron density ρ(r)
+- `esp` - Electrostatic potential V(r)
+- `grad_rho` - Gradient of density ∇ρ(r)
+- `laplacian_rho` - Laplacian ∇²ρ(r)
+
+**Grid resolution tips:**
+- `-n 30-40` - Quick preview (~100 KB)
+- `-n 50-60` - Good default (~450 KB)
+- `-n 80-100` - High quality (~1.8 MB)
+
+## Distributed Multipole Analysis (DMA)
+
+DMA decomposes the electron density into multipole moments (charge, dipole, quadrupole, etc.) centered at atoms. This provides more accurate electrostatics than simple point charges.
+
+### Running DMA
+
+<InteractiveCommand
+  id="dma"
+  command="occ dma input.owf.json --max-rank 2 -p dma.punch"
+  expectedOutputs={['dma.punch']}
+/>
+
+**Parameters:**
+- `--max-rank 2` - Include up to quadrupole moments (rank 0=charge, 1=dipole, 2=quadrupole)
+- `-p dma.punch` - Output file in GDMA punch format
+
+### Understanding the Output
+
+<OutputSnippet
+  commandId="dma"
+  startPattern="DMA multipole moments"
+  endPattern="Wall clock time"
+  highlightPattern="\|?Q\d+[cs]?\|?"
+  title="DMA Multipoles"
+  maxLines={100}
+>
+
+The output shows multipole moments for each atom in spherical harmonic form:
+
+**For each atom:**
+- **Position** (x, y, z in Angstroms) and radius (effective extent of multipoles)
+- **Q00 (monopole)**: Net atomic charge in atomic units
+  - Oxygen: Q00 = -0.277 (negative, electron-rich)
+  - Hydrogens: Q00 ≈ +0.14 each (positive)
+  - Sum should equal total molecular charge (0 for neutral)
+
+- **|Q1| (dipole magnitude)**: Strength of directional charge distribution
+  - Q10, Q11c, Q11s: Components in spherical harmonic basis
+  - Describes polarity around each atom
+
+- **|Q2| (quadrupole magnitude)**: Shape of charge distribution
+  - Q20, Q21c, Q21s, Q22c, Q22s: Five quadrupole components
+  - Describes ellipticity/asphericity of electron density
+
+**Total multipoles**: Sum of all atomic contributions relative to molecular origin
+- Used to verify convergence and check total molecular properties
+- Total Q00 should be zero for neutral molecules
+
+</OutputSnippet>
+
+**Higher ranks for accuracy:**
+- **Rank 2**: Good for most organic molecules
+- **Rank 4**: Better for highly polar/charged systems
+- **Rank 5+**: Diminishing returns, rarely needed
+
+Higher order multipoles can be essential to reproduce some electrostatic interactions between molecules, but
+and beyond short range can be almost identical to the full QM electrostatic interactions - though they miss
+the short range charge density overlap contributions (so-called 'penetration' error).
+
+:::tip
+You don't have to worry about it for point charges, but for higher order multipoles generally depend on their
+axis frame **and** origin. This makes computing them/using them pretty fiddly - which is no doubt part of the 
+reason they're not so widely used as point charges (also more terms, so slower to compute).
+:::
+
+## Experimenting with Different Options
+
+Click the commands above to edit them and try:
+
+**Cube file properties:**
+```bash
+occ cube input.owf.json esp -n 50 -o density.cube        # Electrostatic potential
+occ cube input.owf.json density --orbital=homo -n 50 -o density.cube  # highest occupied molecular orbital (
+```
+
+**Grid resolution:**
+```bash
+-n 30    # Fast, small file (~100 KB)
+-n 50    # Good default (~450 KB)
+-n 80    # High quality (~1.8 MB), might take an eternity for things like exact ESP
+```
+
+**DMA rank:**
+```bash
+--max-rank 0    # Charges only
+--max-rank 2    # Up to quadrupole (good default)
+--max-rank 4    # Higher accuracy for crystals
+```
+
+## Next Steps
+
+Now you can visualize and analyze molecular electronic structure! Continue to:
+- [Crystal Structures & Lattice Energies](./crystal-lattice-energies) - Apply wavefunction methods to crystals
+- [Crystal Growth & Morphology](./crystal-growth-morphology) - Calculate surface energies and growth shapes

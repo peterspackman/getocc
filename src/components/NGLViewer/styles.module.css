@@ -1,0 +1,227 @@
+.viewerContainer {
+  position: relative;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.viewer {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+}
+
+.controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.25rem 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  text-align: center;
+  font-size: 0.7rem;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.controls:hover {
+  opacity: 1;
+}
+
+.controls small {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.trajectoryControls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+}
+
+.controlButtons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.controlButtons button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.controlButtons button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.controlButtons button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.sliderContainer {
+  margin-bottom: 0.5rem;
+}
+
+.frameSlider {
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.frameInfo {
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.helpText {
+  text-align: center;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 0.6;
+}
+
+.trajectoryControls:hover .helpText {
+  opacity: 1;
+}
+
+.cubeControls {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: var(--ifm-background-surface-color);
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  font-size: 0.75rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sliderLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+  color: var(--ifm-font-color-base);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.sliderLabel strong {
+  color: var(--ifm-color-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 4rem;
+}
+
+.slider {
+  width: 150px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--ifm-color-emphasis-200);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ifm-color-primary);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ifm-color-primary);
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+.optionsButton {
+  background: transparent;
+  border: none;
+  padding: 0.1rem 0.3rem;
+  cursor: pointer;
+  color: var(--ifm-color-emphasis-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: all 0.15s;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.optionsButton:hover {
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-color-primary);
+}
+
+.optionsPanel {
+  position: absolute;
+  top: 2.5rem;
+  left: 0.5rem;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 11;
+  min-width: 200px;
+  font-size: 0.8rem;
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+}
+
+.optionItem label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--ifm-font-color-base);
+  user-select: none;
+  margin: 0;
+}
+
+.optionItem input[type="checkbox"] {
+  cursor: pointer;
+}
