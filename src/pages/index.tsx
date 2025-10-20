@@ -50,7 +50,7 @@ H 0.0000000 -0.7632609 -0.4769676`;
         </div>
         <div className={styles.heroRight}>
           <Heading as="h2" className={styles.demoTitle}>
-            Real Quantum Chemistry calculations... <br /> <b> in the browser</b>!
+            Real Quantum Chemistry calculations in the browser!
           </Heading>
           <InteractiveCommand
             command="occ scf water.xyz wb97x def2-svp -o fchk"
@@ -70,8 +70,8 @@ export default function Home(): ReactNode {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      title={siteConfig.title}
+      description="Open Computational Chemistry - Quantum chemistry calculations in your browser">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

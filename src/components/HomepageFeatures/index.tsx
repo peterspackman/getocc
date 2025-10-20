@@ -61,7 +61,7 @@ function Feature({title, description}: FeatureItem) {
         <div className="text--center">
           <Heading as="h3">{title}</Heading>
         </div>
-        <p>{description}</p>
+        <div>{description}</div>
       </div>
     </div>
   );
