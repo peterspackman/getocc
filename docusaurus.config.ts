@@ -86,7 +86,7 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/paracetamol_vdw_lse.png',
+    image: 'img/occ_light.png',
     colorMode: {
       respectPrefersColorScheme: true,
     },
@@ -106,6 +106,7 @@ const config: Config = {
           label: 'Tutorial',
         },
         {to: '/blog', label: 'Blog', position: 'left'},
+        {to: '/try', label: 'Try OCC', position: 'left'},
         {
           to: 'https://github.com/peterspackman/occ',
           label: 'GitHub',
