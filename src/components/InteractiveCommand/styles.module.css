@@ -522,24 +522,50 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .container {
+    margin: 1rem 0;
+  }
+
   .header {
     flex-direction: column;
     align-items: stretch;
+    padding: 0.75rem;
   }
 
   .commandBlock {
     padding: 0;
   }
 
+  .command {
+    font-size: 0.8rem;
+    word-break: break-all;
+    white-space: pre-wrap;
+  }
+
   .actions {
     justify-content: stretch;
+    flex-wrap: wrap;
   }
 
   .button {
     flex: 1;
+    min-width: 80px;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
   }
 
   .fileGrid {
     grid-template-columns: 1fr;
+  }
+
+  .fileTabContent,
+  .availableFiles,
+  .footer {
+    padding: 0.75rem;
+  }
+
+  .outputContent {
+    font-size: 0.75rem;
+    padding: 0.75rem;
   }
 }

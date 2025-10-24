@@ -28,22 +28,49 @@ export function SharedArrayBufferStatus({
   const { isSupported, hasSharedArrayBuffer, isCrossOriginIsolated, hasWorker } =
     checkSharedArrayBufferSupport();
 
-  const title = [
+  const diagnosticInfo = [
     `SharedArrayBuffer: ${hasSharedArrayBuffer ? '✓' : '✗'}`,
     `Cross-Origin Isolated: ${isCrossOriginIsolated ? '✓' : '✗'}`,
     `Web Workers: ${hasWorker ? '✓' : '✗'}`,
+    '',
     isSupported ? 'Multi-threading available' : 'Limited mode - performance may be reduced',
+    '',
+    'Tap for details',
   ].join('\n');
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      onClick();
+    } else {
+      // Default behavior: show alert with diagnostic info
+      e.preventDefault();
+      const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown';
+      alert(
+        `Browser Support Status\n\n` +
+        `SharedArrayBuffer: ${hasSharedArrayBuffer ? '✓ Supported' : '✗ Not Available'}\n` +
+        `Cross-Origin Isolated: ${isCrossOriginIsolated ? '✓ Enabled' : '✗ Disabled'}\n` +
+        `Web Workers: ${hasWorker ? '✓ Supported' : '✗ Not Available'}\n\n` +
+        `Status: ${isSupported ? 'Full multi-threading support' : 'Limited mode - some features may be slower'}\n\n` +
+        `Browser: ${userAgent}`
+      );
+    }
+  };
 
   const statusClass = position === 'corner' ? styles.cornerIndicator : styles.inlineIndicator;
 
   return (
     <div
       className={`${statusClass} ${isSupported ? styles.supported : styles.unsupported}`}
-      title={title}
-      onClick={onClick}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
+      title={diagnosticInfo}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick(e as any);
+        }
+      }}
     >
       <span className={styles.dot}>{isSupported ? '●' : '●'}</span>
       {showText && (

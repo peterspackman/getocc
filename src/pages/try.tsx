@@ -92,10 +92,14 @@ function initializeTerminal(Terminal: any, FitAddon: any) {
 
   // Build the UI
   app.innerHTML = `
-    <div id="fileSidebar" style="width: 280px; background: ${getSidebarBackground(colors.isDark)}; border-right: 1px solid ${colors.border}; display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;">
+    <button id="sidebarToggle" style="display: none; position: fixed; top: calc(var(--ifm-navbar-height) + 0.5rem); left: 0.5rem; z-index: 1001; background: ${colors.isDark ? '#24283b' : '#dfe0e8'}; border: 1px solid ${colors.border}; border-radius: 6px; padding: 0.5rem 0.75rem; color: ${colors.foreground}; cursor: pointer; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">☰</button>
+    <div id="fileSidebar" style="width: 280px; background: ${getSidebarBackground(colors.isDark)}; border-right: 1px solid ${colors.border}; display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; transition: transform 0.3s ease;">
       <div id="fileHeader" style="padding: 1rem; border-bottom: 1px solid ${colors.border}; color: ${colors.foreground}; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
         <span>Files</span>
-        <button id="refreshBtn" style="background: ${colors.border}; border: none; color: ${colors.foreground}; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">↻</button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button id="closeSidebarBtn" style="display: none; background: ${colors.border}; border: none; color: ${colors.foreground}; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">✕</button>
+          <button id="refreshBtn" style="background: ${colors.border}; border: none; color: ${colors.foreground}; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">↻</button>
+        </div>
       </div>
       <div id="fileList" style="flex: 1; overflow-y: auto; padding: 0.5rem 0; min-height: 0;">
         <div style="padding: 2rem 1rem; text-align: center; color: ${colors.foreground}; opacity: 0.6; font-size: 0.85rem;">Loading...</div>
@@ -870,6 +874,61 @@ function initializeTerminal(Terminal: any, FitAddon: any) {
   if (refreshBtn) {
     refreshBtn.addEventListener('click', refreshFileList);
   }
+
+  // Sidebar toggle for mobile
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+  const fileSidebar = document.getElementById('fileSidebar');
+  let sidebarCollapsed = false;
+
+  function updateSidebarVisibility() {
+    const isMobile = window.innerWidth <= 768;
+    const terminalContainer = document.getElementById('terminalContainer');
+
+    if (sidebarToggle && closeSidebarBtn && fileSidebar && terminalContainer) {
+      if (isMobile) {
+        sidebarToggle.style.display = sidebarCollapsed ? 'block' : 'none';
+        closeSidebarBtn.style.display = 'inline-block';
+        fileSidebar.style.position = 'fixed';
+        fileSidebar.style.left = '0';
+        fileSidebar.style.top = 'var(--ifm-navbar-height)';
+        fileSidebar.style.height = 'calc(100% - var(--ifm-navbar-height))';
+        fileSidebar.style.zIndex = '1000';
+        fileSidebar.style.boxShadow = '2px 0 8px rgba(0,0,0,0.2)';
+        terminalContainer.style.paddingLeft = '0.5rem';
+        if (sidebarCollapsed) {
+          fileSidebar.style.transform = 'translateX(-100%)';
+        } else {
+          fileSidebar.style.transform = 'translateX(0)';
+        }
+      } else {
+        sidebarToggle.style.display = 'none';
+        closeSidebarBtn.style.display = 'none';
+        fileSidebar.style.position = 'relative';
+        fileSidebar.style.transform = 'translateX(0)';
+        fileSidebar.style.boxShadow = 'none';
+        terminalContainer.style.paddingLeft = '1rem';
+        sidebarCollapsed = false;
+      }
+    }
+  }
+
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+      sidebarCollapsed = false;
+      updateSidebarVisibility();
+    });
+  }
+
+  if (closeSidebarBtn) {
+    closeSidebarBtn.addEventListener('click', () => {
+      sidebarCollapsed = true;
+      updateSidebarVisibility();
+    });
+  }
+
+  window.addEventListener('resize', updateSidebarVisibility);
+  updateSidebarVisibility();
 
   // Drag and drop
   const mainContent = app.querySelector('div:nth-child(2)') as HTMLElement;
