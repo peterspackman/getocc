@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "copy-wasm": "cp node_modules/@peterspackman/occjs/dist/*.{wasm,data,js} static/dist/",
+    "copy-wasm": "cp node_modules/@peterspackman/occjs/dist/*.wasm node_modules/@peterspackman/occjs/dist/*.data node_modules/@peterspackman/occjs/dist/*.js static/dist/",
     "prebuild": "npm run copy-wasm",
     "start": "docusaurus start",
     "build": "docusaurus build",
