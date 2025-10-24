@@ -1,18 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
-// Root component with COI service worker
+// Root component - COI service worker now loaded via docusaurus.config.ts
 export default function Root({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    // Load COI service worker only on client side
-    const script = document.createElement('script');
-    script.src = '/coi-serviceworker.js';
-    script.async = true;
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
-
   return <>{children}</>;
 }

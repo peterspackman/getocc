@@ -1,0 +1,70 @@
+.inlineIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  cursor: help;
+  user-select: none;
+}
+
+.cornerIndicator {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  cursor: help;
+  user-select: none;
+  z-index: 10;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.cornerIndicator:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.cornerIndicator[role="button"] {
+  cursor: pointer;
+}
+
+.dot {
+  font-size: 0.6rem;
+  line-height: 1;
+}
+
+.text {
+  font-weight: 500;
+  font-family: var(--ifm-font-family-base);
+}
+
+.supported .dot {
+  color: var(--ifm-color-success);
+}
+
+.unsupported .dot {
+  color: var(--ifm-color-danger);
+}
+
+.supported .text {
+  color: var(--ifm-color-success-dark);
+}
+
+.unsupported .text {
+  color: var(--ifm-color-danger-dark);
+}
+
+[data-theme='dark'] .supported .text {
+  color: var(--ifm-color-success);
+}
+
+[data-theme='dark'] .unsupported .text {
+  color: var(--ifm-color-danger);
+}

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import { vfsManager } from './vfsManager';
 import { setCommandOutput } from '../OutputSnippet/commandOutputs';
+import { SharedArrayBufferStatus } from '../SharedArrayBufferStatus';
 import styles from './styles.module.css';
 
 interface HighlightPattern {
@@ -453,13 +454,18 @@ function InteractiveCommandContent({
         </div>
       )}
 
-      {expectedOutputs.length > 0 && !isRunning && generatedFileNames.length === 0 && !output && (
-        <div className={styles.expectedOutputs}>
-          <small>
-            Expected outputs: {expectedOutputs.join(', ')}
-          </small>
+      <div className={styles.footer}>
+        {expectedOutputs.length > 0 && !isRunning && generatedFileNames.length === 0 && !output && (
+          <div className={styles.expectedOutputs}>
+            <small>
+              Expected outputs: {expectedOutputs.join(', ')}
+            </small>
+          </div>
+        )}
+        <div className={styles.statusIndicator}>
+          <SharedArrayBufferStatus position="inline" showText={false} />
         </div>
-      )}
+      </div>
     </div>
   );
 }

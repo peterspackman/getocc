@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Layout from '@theme/Layout';
+import { checkSharedArrayBufferSupport } from '@site/src/components/SharedArrayBufferStatus';
 
 export default function TryPage() {
   return (
@@ -100,14 +101,14 @@ function initializeTerminal(Terminal: any, FitAddon: any) {
         <div style="padding: 2rem 1rem; text-align: center; color: ${colors.foreground}; opacity: 0.6; font-size: 0.85rem;">Loading...</div>
       </div>
     </div>
-    <div id="terminalContainer" style="flex: 1; position: relative; background: ${getTerminalBackground(colors.isDark)}; min-width: 0; height: 100%;">
+    <div id="terminalContainer" style="flex: 1; position: relative; background: ${getTerminalBackground(colors.isDark)}; min-width: 0; height: 100%; padding-left: 1rem;">
       <div id="terminal" style="width: 100%; height: 100%;"></div>
       <div id="dropOverlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: ${colors.primary}33; border: 3px dashed ${colors.primary}; display: none; align-items: center; justify-content: center; font-size: 1.5rem; color: ${colors.primary}; pointer-events: none; z-index: 1000;">
         📁 Drop files here to upload
       </div>
       <div id="statusBar" style="position: absolute; top: 1rem; right: 1.5rem; background: ${colors.isDark ? '#24283b' : '#dfe0e8'}; border: 1px solid ${colors.isDark ? '#414868' : '#c4c6d4'}; border-radius: 6px; padding: 0.4rem 0.8rem; color: ${colors.isDark ? '#a9b1d6' : '#6172b0'}; font-size: 0.75rem; display: flex; gap: 0.5rem; z-index: 100;">
         <div id="statusIndicator" style="display: flex; align-items: center; gap: 0.4rem;">
-          <span>●</span>
+          <span>○</span>
           <span id="statusText">Loading...</span>
         </div>
       </div>
@@ -278,6 +279,39 @@ function initializeTerminal(Terminal: any, FitAddon: any) {
     attributeFilter: ['data-theme'],
   });
 
+  function checkAndReportSharedArrayBufferSupport() {
+    const { hasSharedArrayBuffer, isCrossOriginIsolated, isSupported } = checkSharedArrayBufferSupport();
+
+    if (!isSupported) {
+      const indicator = document.getElementById('statusIndicator');
+      const statusText = document.getElementById('statusText');
+
+      if (statusText) statusText.textContent = 'Limited Mode';
+      if (indicator) {
+        const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--ifm-color-danger').trim();
+        indicator.style.color = dangerColor;
+        indicator.innerHTML = `
+          <span>●</span>
+          <span id="statusText" style="cursor: help;" title="SharedArrayBuffer not available. Multi-threading disabled. ${!isCrossOriginIsolated ? 'Cross-Origin Isolation required.' : ''}">Limited Mode</span>
+        `;
+      }
+
+      term.writeln('\x1b[93m⚠ Warning: SharedArrayBuffer not available\x1b[0m');
+      term.writeln('\x1b[93mMulti-threading is disabled. Performance may be limited.\x1b[0m');
+
+      if (!isCrossOriginIsolated) {
+        term.writeln('\x1b[93mCross-Origin Isolation is not enabled.\x1b[0m');
+        term.writeln('\x1b[93mTry refreshing the page or using a different browser.\x1b[0m');
+      }
+
+      term.writeln('');
+
+      return false;
+    }
+
+    return true;
+  }
+
   function initWorker() {
     worker = new Worker('/occ-worker.js');
 
@@ -294,7 +328,8 @@ function initializeTerminal(Terminal: any, FitAddon: any) {
     switch (msg.type) {
       case 'ready':
         workerReady = true;
-        setStatus('Ready', true);
+        const hasFullSupport = checkAndReportSharedArrayBufferSupport();
+        setStatus(hasFullSupport ? 'Ready' : 'Limited Mode', hasFullSupport);
         term.writeln('\x1b[1;34m╔═══════════════════════════════════════════════════════════════╗');
         term.writeln('\x1b[1;34m║         Welcome to OCC WebAssembly Interactive Demo!         ║');
         term.writeln('\x1b[1;34m╚═══════════════════════════════════════════════════════════════╝\x1b[0m');
@@ -648,6 +683,46 @@ function initializeTerminal(Terminal: any, FitAddon: any) {
       const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--ifm-color-secondary').trim();
 
       indicator.style.color = isReady ? successColor : text === 'Error' ? dangerColor : secondaryColor;
+      indicator.style.cursor = 'help';
+
+      // Update icon based on status
+      const icon = isReady ? '✓' : text === 'Error' || text === 'Limited Mode' ? '●' : '○';
+
+      // Get diagnostic info
+      const { hasSharedArrayBuffer, isCrossOriginIsolated, hasWorker } = checkSharedArrayBufferSupport();
+
+      const diagnostics = [
+        `SharedArrayBuffer: ${hasSharedArrayBuffer ? '✓' : '✗'}`,
+        `Cross-Origin Isolated: ${isCrossOriginIsolated ? '✓' : '✗'}`,
+        `Web Workers: ${hasWorker ? '✓' : '✗'}`,
+        `User Agent: ${navigator.userAgent.split(' ').slice(-2).join(' ')}`
+      ].join('\n');
+
+      indicator.innerHTML = `
+        <span>${icon}</span>
+        <span id="statusText" title="${diagnostics}">${text}</span>
+      `;
+
+      // Make it clickable to show details in terminal
+      indicator.onclick = () => {
+        if (term) {
+          term.writeln('\r\n\x1b[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
+          term.writeln('\x1b[1mSystem Diagnostics:\x1b[0m');
+          term.writeln('\x1b[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
+          term.writeln('');
+          term.writeln(`  SharedArrayBuffer:      ${hasSharedArrayBuffer ? '\x1b[32m✓ Supported\x1b[0m' : '\x1b[31m✗ Not available\x1b[0m'}`);
+          term.writeln(`  Cross-Origin Isolated:  ${isCrossOriginIsolated ? '\x1b[32m✓ Enabled\x1b[0m' : '\x1b[31m✗ Disabled\x1b[0m'}`);
+          term.writeln(`  Web Workers:            ${hasWorker ? '\x1b[32m✓ Supported\x1b[0m' : '\x1b[31m✗ Not available\x1b[0m'}`);
+          term.writeln(`  Multi-threading:        ${hasSharedArrayBuffer && isCrossOriginIsolated ? '\x1b[32m✓ Available\x1b[0m' : '\x1b[33m⚠ Limited\x1b[0m'}`);
+          term.writeln('');
+          term.writeln(`  Browser: ${navigator.userAgent}`);
+          term.writeln('');
+          term.writeln('\x1b[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\x1b[0m');
+          if (!isRunningCommand) {
+            writePrompt();
+          }
+        }
+      };
     }
   }
 

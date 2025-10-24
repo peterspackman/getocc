@@ -453,12 +453,26 @@
   transform: translateY(2px);
 }
 
-.expectedOutputs {
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.75rem 1.25rem;
   background: var(--ifm-color-emphasis-50);
+  min-height: 2.5rem;
+}
+
+.expectedOutputs {
   font-size: 0.85rem;
   color: var(--ifm-color-emphasis-700);
   font-style: italic;
+  flex: 1;
+}
+
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
 }
 
 /* Dark mode adjustments */
