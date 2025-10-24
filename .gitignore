@@ -8,9 +8,10 @@
 .docusaurus
 .cache-loader
 
-# WASM files copied from node_modules
+# WASM and JS files copied from node_modules
 static/dist/*.wasm
 static/dist/*.data
+static/dist/*.js
 
 # Misc
 .DS_Store
