@@ -80,14 +80,6 @@ const config: Config = {
     },
   ],
 
-  scripts: [
-    {
-      src: '/coi-serviceworker.js',
-      async: false,
-      defer: false,
-    },
-  ],
-
   plugins: [
     './plugins/headers-plugin.js',
   ],
