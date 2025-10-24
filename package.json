@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
+    "copy-wasm": "cp node_modules/@peterspackman/occjs/dist/*.wasm node_modules/@peterspackman/occjs/dist/*.data static/dist/",
+    "prebuild": "npm run copy-wasm",
     "start": "docusaurus start",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
@@ -18,7 +20,7 @@
     "@docusaurus/core": "3.9.1",
     "@docusaurus/preset-classic": "3.9.1",
     "@mdx-js/react": "^3.0.0",
-    "@peterspackman/occjs": "^0.8.5",
+    "@peterspackman/occjs": "^0.8.6",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.3.0",
     "@xterm/addon-fit": "^0.10.0",
