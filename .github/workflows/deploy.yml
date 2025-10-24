@@ -1,9 +1,12 @@
 name: Deploy to GitHub Pages
 
+# Disabled: Now using Cloudflare Workers for deployment
+# To re-enable, uncomment the 'push' trigger below
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:  # Manual trigger only
+  # push:
+  #   branches:
+  #     - main
 
 permissions:
   contents: write
