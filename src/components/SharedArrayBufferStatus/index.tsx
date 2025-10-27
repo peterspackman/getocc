@@ -25,8 +25,20 @@ export function SharedArrayBufferStatus({
   position = 'inline',
   onClick,
 }: SharedArrayBufferStatusProps): JSX.Element {
-  const { isSupported, hasSharedArrayBuffer, isCrossOriginIsolated, hasWorker } =
-    checkSharedArrayBufferSupport();
+  // Start with "not supported" to avoid SSR/hydration mismatches
+  const [support, setSupport] = React.useState<ReturnType<typeof checkSharedArrayBufferSupport>>({
+    hasSharedArrayBuffer: false,
+    isCrossOriginIsolated: false,
+    hasWorker: false,
+    isSupported: false,
+  });
+
+  // Check after component mounts (post-hydration) - runs once on client only
+  React.useEffect(() => {
+    setSupport(checkSharedArrayBufferSupport());
+  }, []);
+
+  const { isSupported, hasSharedArrayBuffer, isCrossOriginIsolated, hasWorker } = support;
 
   const diagnosticInfo = [
     `SharedArrayBuffer: ${hasSharedArrayBuffer ? '✓' : '✗'}`,
